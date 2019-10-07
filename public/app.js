@@ -1,7 +1,11 @@
 const init = async () => {
-
-    let fingerPrint = await getUserFingerPrint();
-    let browserData = await getBrowserData();
+    
+    try {
+        let fingerPrint = await getUserFingerPrint();
+        let browserData = await getBrowserData();
+    } catch (err) {
+        throw new Error(err);
+    }
     
     let data = {
         ...browserData,
@@ -9,7 +13,7 @@ const init = async () => {
         userAgent: navigator.userAgent,
         fingerPrint
     }
-    console.log(data);
+    
     // save in db
     fetch('/init',{
         method:"POST",
@@ -26,7 +30,9 @@ const init = async () => {
                document.write('Error saving config');
            } 
         });
-    }).catch((err)=>console.log(err));
+    }).catch((err)=>{
+        throw new Error(err);
+    });
 
 }
 
