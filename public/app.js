@@ -1,14 +1,15 @@
 const init = async () => {
 
-    return getUserFingerPrint();
+    let fingerPrint = await getUserFingerPrint();
     let browserData = await getBrowserData();
     
     let data = {
         ...browserData,
         os: navigator.platform,
-        userAgent: navigator.userAgent
+        userAgent: navigator.userAgent,
+        fingerPrint
     }
-    
+    console.log(data);
     // save in db
     fetch('/init',{
         method:"POST",
@@ -70,19 +71,37 @@ getBrowserData = () => {
 getUserFingerPrint = () => {
     
     if (window.requestIdleCallback) {
-        console.log("window.requestIdleCallback called");
-        requestIdleCallback(function () {
-            Fingerprint2.get(function (components) {
-              console.log(components);
-            })
-        })
+        
+        return new Promise((resolve,reject) => {
+            requestIdleCallback(async () => {
+                
+                try {
+                    let components = await Fingerprint2.getPromise();
+                    let values = components.map(function (component) { return component.value });
+                    let murmur = Fingerprint2.x64hash128(values.join(''), 31);
+                    resolve(murmur);
+                } catch(err) {
+                    reject(err);
+                    throw new Error(err);
+                }
+                
+            });
+        });
+        
     } else {
-        console.log("else [art called");
-        setTimeout(function () {
+        
+        return new Promise((resolve,reject) => {
             Fingerprint2.get(function (components) {
-              console.log(components);
-            })  
-        }, 500)
+                let values = components.map(function (component) { return component.value });
+                let murmur = Fingerprint2.x64hash128(values.join(''), 31);
+                if (murmur) {
+                    resolve(murmur);
+                } else {
+                    reject();
+                }
+            });
+        });
+        
     }   
     
 }

@@ -9,7 +9,7 @@ router.get('/', function(req, res){
 
 router.post('/init' , (req,res) => {
     
-    let body = _.pick(req.body,['browser','os','version','userAgent','city','country','state'],);
+    let body = _.pick(req.body,['browser','os','version','userAgent','city','country','state']);
     let ip = req.headers['x-forwarded-for'] ? req.headers['x-forwarded-for'].split(',')[0] : req.connection.remoteAddress;
     let status,message;
     
