@@ -3,16 +3,16 @@ const init = async () => {
     try {
         let fingerPrint = await getUserFingerPrint();
         let browserData = await getBrowserData();
+        let data = {
+            ...browserData,
+            os: navigator.platform,
+            userAgent: navigator.userAgent,
+            fingerPrint
+        }
     } catch (err) {
         throw new Error(err);
     }
     
-    let data = {
-        ...browserData,
-        os: navigator.platform,
-        userAgent: navigator.userAgent,
-        fingerPrint
-    }
     
     // save in db
     fetch('/init',{
