@@ -9,30 +9,29 @@ const init = async () => {
             userAgent: navigator.userAgent,
             fingerPrint
         }
+        // save in db
+        fetch('/init',{
+            method:"POST",
+            body:JSON.stringify(data),
+            headers:{
+                'Content-Type': 'application/json'
+            }
+        }).then((res)=>{
+           res.json().then((data) => {
+               console.log("Response ",data);
+               if (res.status == 201 || res.status == 200) {
+                   document.write("Init saved successfully");
+               } else {
+                   document.write('Error saving config');
+               } 
+            });
+        }).catch((err)=>{
+            throw new Error(err);
+        });
+        
     } catch (err) {
         throw new Error(err);
-    }
-    
-    
-    // save in db
-    fetch('/init',{
-        method:"POST",
-        body:JSON.stringify(data),
-        headers:{
-            'Content-Type': 'application/json'
-        }
-    }).then((res)=>{
-       res.json().then((data) => {
-           console.log("Response ",data);
-           if (res.status == 201 || res.status == 200) {
-               document.write("Init saved successfully");
-           } else {
-               document.write('Error saving config');
-           } 
-        });
-    }).catch((err)=>{
-        throw new Error(err);
-    });
+    }   
 
 }
 
