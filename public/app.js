@@ -1,14 +1,19 @@
+// the init function
 const init = async () => {
     
     try {
-        let fingerPrint = await getUserFingerPrint();
+        let fingerPrintData = await getFingerPrint();
         let browserData = await getBrowserData();
+        getData();
         let data = {
             ...browserData,
             os: navigator.platform,
             userAgent: navigator.userAgent,
-            fingerPrint
+            cookieEnabled: cookieEnabled(),
+            encoding: document.characterSet,
+            ...fingerPrintData
         }
+        console.log(data);
         // save in db
         fetch('/init',{
             method:"POST",
@@ -73,7 +78,7 @@ getBrowserData = () => {
     
 }
 
-getUserFingerPrint = () => {
+getFingerPrint = () => {
     
     if (window.requestIdleCallback) {
         
@@ -82,9 +87,30 @@ getUserFingerPrint = () => {
                 
                 try {
                     let components = await Fingerprint2.getPromise();
-                    let values = components.map(function (component) { return component.value });
-                    let murmur = Fingerprint2.x64hash128(values.join(''), 31);
-                    resolve(murmur);
+                    let screenResolution,timezone,language,sessionStorage,localStorage;
+                    let values = components.map((component) => { 
+                        if (component.key == "screenResolution") {
+                            screenResolution = component.value;
+                        } else if(component.key == "timezone") {
+                            timezone = component.value;
+                        } else if(component.key == "language") {
+                            language = component.value;
+                        } else if(component.key == "sessionStorage") {
+                            localStorage = component.value;
+                        } else if(component.key == "localStorage") {
+                            sessionStorage = component.value;
+                        }
+                        return component.value;
+                    });
+                    let data = {
+                        screenResolution,
+                        timezone,
+                        language,
+                        sessionStorage,
+                        localStorage,
+                        fingerPrintHash: Fingerprint2.x64hash128(values.join(''), 31)
+                    }
+                    resolve(data);
                 } catch(err) {
                     reject(err);
                     throw new Error(err);
@@ -96,10 +122,30 @@ getUserFingerPrint = () => {
     } else {
         
         return new Promise((resolve,reject) => {
-            Fingerprint2.get(function (components) {
-                let values = components.map(function (component) { return component.value });
-                let murmur = Fingerprint2.x64hash128(values.join(''), 31);
-                if (murmur) {
+            Fingerprint2.get((components) => {
+                let values = components.map((component) => { 
+                    if (component.key == "screenResolution") {
+                        screenResolution = component.value;
+                    } else if(component.key == "timezone") {
+                        timezone = component.value;
+                    } else if(component.key == "language") {
+                        language = component.value;
+                    } else if(component.key == "sessionStorage") {
+                        localStorage = component.value;
+                    } else if(component.key == "localStorage") {
+                        sessionStorage = component.value;
+                    }
+                    return component.value;
+                });
+                let data = {
+                        screenResolution,
+                        timezone,
+                        language,
+                        sessionStorage,
+                        localStorage,
+                        fingerPrintHash: Fingerprint2.x64hash128(values.join(''), 31)
+                    }
+                if (data && Object.keys(data).length) {
                     resolve(murmur);
                 } else {
                     reject();
@@ -108,6 +154,52 @@ getUserFingerPrint = () => {
         });
         
     }   
+    
+}
+
+cookieEnabled = () => {
+    
+    let cookieEnabled = (navigator.cookieEnabled) ? true : false;
+  
+    if (typeof navigator.cookieEnabled == "undefined" && !cookieEnabled)
+    { 
+      document.cookie="testcookie";
+      cookieEnabled = (document.cookie.indexOf("testcookie") != -1) ? true : false;
+    }
+    return (cookieEnabled);
+    
+}
+
+getData = () => {
+    
+        fetch('http://freegeoip.net/json/',{
+            method:"GET",
+        }).then((res)=>{
+          if (response.status !== 200) {
+            console.log('Looks like there was a problem. Status Code: ' +
+              response.status);
+            return;
+          }
+
+          // Examine the text in the response
+          response.json().then(function(data) {
+            var country_code = data.country_code;
+            var country = data.country_name;
+            var ip = data.ip;
+            var time_zone = data.time_zone;
+            var latitude = data.latitude;
+            var longitude = data.longitude;
+
+            console.log("Country Code: " + country_code);
+            console.log("Country Name: " + country);
+            console.log("IP: " + ip); 
+            console.log("Time Zone: " + time_zone);
+            console.log("Latitude: " + latitude);
+            console.log("Longitude: " + longitude);   
+          });
+        }).catch((err)=>{
+            throw new Error(err);
+        }); 
     
 }
 
