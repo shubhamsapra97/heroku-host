@@ -172,7 +172,7 @@ cookieEnabled = () => {
 
 getData = () => {
     
-        fetch('https://ipinfo.io',{
+        fetch('https://api.ipdata.co?api-key=3903a0185925e6ebbde587bf50be2cd1ad78a0afcf512cbf8670e136',{
             method:"GET",
         }).then((response)=>{
             console.log(response);
