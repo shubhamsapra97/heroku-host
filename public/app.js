@@ -172,7 +172,7 @@ cookieEnabled = () => {
 
 getData = () => {
     
-        fetch('http://freegeoip.net/json/',{
+        fetch('https://freegeoip.net/json/',{
             method:"GET",
         }).then((res)=>{
           if (response.status !== 200) {
