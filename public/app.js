@@ -172,9 +172,10 @@ cookieEnabled = () => {
 
 getData = () => {
     
-        fetch('https://freegeoip.net/json/',{
+        fetch('https://ipinfo.io',{
             method:"GET",
-        }).then((res)=>{
+        }).then((response)=>{
+            console.log(response);
           if (response.status !== 200) {
             console.log('Looks like there was a problem. Status Code: ' +
               response.status);
@@ -183,19 +184,20 @@ getData = () => {
 
           // Examine the text in the response
           response.json().then(function(data) {
-            var country_code = data.country_code;
-            var country = data.country_name;
-            var ip = data.ip;
-            var time_zone = data.time_zone;
-            var latitude = data.latitude;
-            var longitude = data.longitude;
+              console.log(data);
+            //var country_code = data.country_code;
+            //var country = data.country_name;
+            //var ip = data.ip;
+            //var time_zone = data.time_zone;
+            //var latitude = data.latitude;
+            //var longitude = data.longitude;
 
-            console.log("Country Code: " + country_code);
-            console.log("Country Name: " + country);
-            console.log("IP: " + ip); 
-            console.log("Time Zone: " + time_zone);
-            console.log("Latitude: " + latitude);
-            console.log("Longitude: " + longitude);   
+            //console.log("Country Code: " + country_code);
+            //console.log("Country Name: " + country);
+            //console.log("IP: " + ip); 
+            //console.log("Time Zone: " + time_zone);
+            //console.log("Latitude: " + latitude);
+            //console.log("Longitude: " + longitude);   
           });
         }).catch((err)=>{
             throw new Error(err);
